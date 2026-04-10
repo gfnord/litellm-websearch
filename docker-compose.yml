@@ -1,0 +1,40 @@
+services:
+  litellm:
+    build:
+      context: .
+      dockerfile: Dockerfile.litellm
+    container_name: litellm-proxy
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      - LITELLM_MASTER_KEY=sk-123345sdf
+      - LITELLM_SALT_KEY=sk-123345sdf
+    # Use host network for accessing host's Redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["litellm", "--config", "/app/config.yaml", "--port", "4000", "--detailed_debug"]
+    restart: unless-stopped
+    networks:
+      - litellm-network
+
+  websearch-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.websearch
+    container_name: websearch-proxy
+    ports:
+      - "4001:4001"
+    environment:
+      - LITELLM_URL=http://litellm:4000
+      - SERPER_API_KEY=${SERPER_API_KEY}
+    restart: unless-stopped
+    networks:
+      - litellm-network
+    depends_on:
+      - litellm
+
+networks:
+  litellm-network:
+    driver: bridge

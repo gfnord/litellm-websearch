@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+litellm-env/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Backup files
+bkp/
+*.bkp*
+
+# Docker
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+Makefile
+
+# Documentation
+README.md
+CLAUDE.md
+*.md
+
+# Environment
+.env
+.env.example
+
+# Other
+*.log

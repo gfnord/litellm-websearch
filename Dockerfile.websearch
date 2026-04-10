@@ -1,0 +1,22 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY requirements-websearch.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-websearch.txt
+
+# Copy application code
+COPY websearch_proxy.py .
+
+# Expose port
+EXPOSE 4001
+
+# Run the application
+CMD ["python", "websearch_proxy.py"]

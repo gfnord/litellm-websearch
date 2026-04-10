@@ -1,0 +1,82 @@
+model_list:
+  - model_name: glm-4.7
+    litellm_params:
+      model: ollama_chat/glm-4.7-flash
+      api_base: http://host.docker.internal:11434
+      max_tokens: 32768
+    model_info:
+      supports_web_search: true
+
+  - model_name: glm-4.7-zai
+    litellm_params:
+      model: anthropic/glm-4.7
+      api_base: https://api.z.ai/api/anthropic
+
+  - model_name: claude-opus-4-5-20251101
+    litellm_params:
+      model: ollama_chat/glm-4.7-flash
+      api_base: http://sar-trainer-ollama:11434
+      max_tokens: 32768
+    model_info:
+      supports_web_search: true
+
+  - model_name: bitnet-3b
+    litellm_params:
+      model: openai/bitnet-3b
+      api_base: http://localhost:8080/v1
+      api_key: none
+
+  - model_name: gemma4-e4b
+    litellm_params:
+      model: ollama_chat/gemma4:e4b
+      api_base: http://sar-trainer-ollama:11434
+      max_tokens: 32768
+    model_info:
+      supports_vision: true
+
+  - model_name: claude-haiku-4-5-20251001
+    litellm_params:
+      model: ollama_chat/glm-4.7-flash
+      api_base: http://sar-trainer-ollama:11434
+      max_tokens: 32768
+    model_info:
+      supports_web_search: true
+
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: ollama_chat/glm-4.7-flash
+      api_base: http://sar-trainer-ollama:11434
+      max_tokens: 32768
+    model_info:
+      supports_web_search: true
+
+  - model_name: qwen-3.5
+    litellm_params:
+      model: ollama_chat/qwen3.5:9b
+      api_base: http://host.docker.internal:11434
+      max_tokens: 32768
+    model_info:
+      supports_web_search: true
+
+  - model_name: gemma4-e4b
+    litellm_params:
+      model: ollama_chat/gemma4:e4b
+      api_base: http://host.docker.internal:11434
+      max_tokens: 32768
+    model_info:
+      supports_vision: true
+      supports_web_search: true
+
+litellm_settings:
+  master_key: sk-123345sdf
+  drop_params: true
+  cache: true
+  cache_params:
+    type: redis
+    host: host.docker.internal
+    port: 6379
+    namespace: "litellm.caching.caching"
+  web_search_provider: serper
+  callbacks: ["websearch_interception"]
+  websearch_interception_params:
+    enabled_providers: ["ollama_chat"]
