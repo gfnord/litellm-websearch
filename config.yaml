@@ -10,6 +10,7 @@ model_list:
   - model_name: glm-4.7-zai
     litellm_params:
       model: anthropic/glm-4.7
+      api_key: os.environ/ZAI_API_KEY
       api_base: https://api.z.ai/api/anthropic
 
   - model_name: claude-opus-4-5-20251101
@@ -73,7 +74,7 @@ litellm_settings:
   cache: true
   cache_params:
     type: redis
-    host: host.docker.internal
+    host: redis
     port: 6379
     namespace: "litellm.caching.caching"
   web_search_provider: serper

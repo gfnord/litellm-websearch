@@ -11,13 +11,13 @@ services:
     environment:
       - LITELLM_MASTER_KEY=sk-123345sdf
       - LITELLM_SALT_KEY=sk-123345sdf
-    # Use host network for accessing host's Redis
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ZAI_API_KEY=${ZAI_API_KEY}
     command: ["litellm", "--config", "/app/config.yaml", "--port", "4000", "--detailed_debug"]
     restart: unless-stopped
     networks:
       - litellm-network
+    depends_on:
+      - redis
 
   websearch-proxy:
     build:
@@ -34,6 +34,18 @@ services:
       - litellm-network
     depends_on:
       - litellm
+
+  redis:
+    image: redis:7-alpine
+    container_name: litellm-redis
+    restart: unless-stopped
+    networks:
+      - litellm-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 networks:
   litellm-network:
