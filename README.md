@@ -31,8 +31,8 @@ A Dockerized LiteLLM deployment with a custom web search proxy layer that provid
 
 - Docker and Docker Compose
 - Ollama running on `localhost:11434` (for local models)
-- Redis running on `localhost:6379` (or use the included container)
 - Serper API key from https://serper.dev/
+- (Optional) Z.AI API key from https://z.ai/ for the `glm-4.7-zai` model
 
 ### Configuration
 
@@ -93,6 +93,20 @@ When detected, it:
 3. Injects results into the system prompt
 4. Sends the enriched request to the model
 
+### Available Models
+
+The deployment includes several pre-configured models:
+
+| Model Name | Provider | Description | Web Search |
+|------------|----------|-------------|------------|
+| `glm-4.7` | Ollama | Local GLM-4.7 Flash model | ✅ |
+| `glm-4.7-zai` | Z.AI | Hosted GLM-4.7 via Z.AI API | ❌ |
+| `gemma4-e4b` | Ollama | Local Gemma 4 4B model | ✅ |
+| `qwen-3.5` | Ollama | Local Qwen 3.5 9B model | ✅ |
+| `bitnet-3b` | Local | OpenAI-compatible API | ❌ |
+
+**Note**: The `glm-4.7-zai` model requires a `ZAI_API_KEY` in your `.env` file.
+
 ## Configuration
 
 ### Models
@@ -116,6 +130,7 @@ model_list:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SERPER_API_KEY` | Serper API key for web search | - |
+| `ZAI_API_KEY` | Z.AI API key for glm-4.7-zai model | - |
 | `LITELLM_MASTER_KEY` | LiteLLM master key | `sk-123345sdf` |
 | `LITELLM_URL` | LiteLLM service URL | `http://litellm:4000` |
 | `PORT` | Web search proxy port | `4001` |
