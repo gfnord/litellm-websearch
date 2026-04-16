@@ -9,9 +9,10 @@ import json
 import os
 import re
 import httpx
+import uvicorn
+from datetime import datetime
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
-import uvicorn
 
 LITELLM_URL = os.getenv("LITELLM_URL", "http://localhost:4000")
 SERPER_API_KEY = os.getenv("SERPER_API_KEY")
@@ -66,8 +67,12 @@ def extract_search_query(messages: list) -> str | None:
                 continue
 
             content_lower = content.lower()
+            # Bail out if this looks like a coding/file operation instruction
+            CODE_INDICATORS = ["write a", "create a", "make a", "generate a", "implement", "#!/"]
+            if any(indicator in content_lower for indicator in CODE_INDICATORS):
+                return None
             # Require explicit search verb — don't trigger on passive keywords alone
-            EXPLICIT_TRIGGERS = ["search", "look up", "find me", "find the", "look for"]
+            EXPLICIT_TRIGGERS = ["search", "look up", "look for"]
             # Also trigger on clear recency signals in short queries
             RECENCY_TRIGGERS = ["latest", "recent", "current", "today", "news"]
             has_explicit = any(t in content_lower for t in EXPLICIT_TRIGGERS)
@@ -204,6 +209,7 @@ async def messages(request: Request):
 
         # Inject search results into system prompt
         search_context = (
+            f"Today's date is {datetime.now().strftime('%B %d, %Y')}.\n\n"
             f"The user is asking about: {search_query}\n\n"
             f"Here are current web search results to help you answer:\n\n"
             f"{search_results}\n\n"
@@ -223,6 +229,9 @@ async def messages(request: Request):
         content_filtered = [b for b in content if b.get("type") != "thinking"]
         resp_data = dict(resp_data)
         resp_data["content"] = content_filtered
+        for block in resp_data["content"]:
+            if block.get("type") == "text":
+                block["text"] = re.sub(r"<\|mask_start\|>.*?<\|mask_end\|>", "", block["text"], flags=re.DOTALL).strip()
         resp_data["stop_reason"] = "end_turn"
 
         print(f"[websearch_proxy] Response: {len(content_filtered)} blocks", flush=True)
@@ -257,6 +266,16 @@ async def messages(request: Request):
                     f"{LITELLM_URL}/v1/messages",
                     headers=forward_headers, json=body
                 )
+            try:
+                resp_data = resp.json()
+                for block in resp_data.get("content", []):
+                    if block.get("type") == "text":
+                        block["text"] = re.sub(r"<\|mask_start\|>.*?<\|mask_end\|>", "", block["text"], flags=re.DOTALL).strip()
+                return Response(
+                    content=json.dumps(resp_data), status_code=resp.status_code,
+                    media_type=resp.headers.get("content-type", "application/json")
+                )
+            except Exception:
                 return Response(
                     content=resp.content, status_code=resp.status_code,
                     media_type=resp.headers.get("content-type", "application/json")
