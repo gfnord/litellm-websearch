@@ -69,7 +69,6 @@ model_list:
     model_info:
       supports_web_search: true
 
-
   - model_name: gemma4-e4b
     litellm_params:
       model: ollama_chat/gemma4:e4b
@@ -77,6 +76,14 @@ model_list:
       max_tokens: 32768
     model_info:
       supports_vision: true
+      supports_web_search: true
+
+  - model_name: dolphin3
+    litellm_params:
+      model: ollama_chat/dolphin3:latest
+      api_base: http://host.docker.internal:11434
+      max_tokens: 8192
+    model_info:
       supports_web_search: true
 
 litellm_settings:
