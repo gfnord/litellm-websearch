@@ -86,6 +86,12 @@ model_list:
     model_info:
       supports_web_search: true
 
+  - model_name: rocinante
+    litellm_params:
+      model: ollama_chat/Rocinante-12B-v1.1-Q8_0:latest
+      api_base: http://host.docker.internal:11434
+      max_tokens: 16384
+
 litellm_settings:
   master_key: sk-123345sdf
   drop_params: true
