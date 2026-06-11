@@ -7,31 +7,31 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 build: ## Build Docker images
-	docker-compose build
+	docker compose build
 
 up: ## Start all services
-	docker-compose up -d
+	docker compose up -d
 
 down: ## Stop all services
-	docker-compose down
+	docker compose down
 
 restart: ## Restart all services
-	docker-compose restart
+	docker compose restart
 
 logs: ## Show logs from all services
-	docker-compose logs -f
+	docker compose logs -f
 
 litellm-logs: ## Show logs from litellm service
-	docker-compose logs -f litellm
+	docker compose logs -f litellm
 
 websearch-logs: ## Show logs from websearch-proxy service
-	docker-compose logs -f websearch-proxy
+	docker compose logs -f websearch-proxy
 
 shell-litellm: ## Open shell in litellm container
-	docker-compose exec litellm /bin/sh
+	docker compose exec litellm /bin/sh
 
 shell-websearch: ## Open shell in websearch-proxy container
-	docker-compose exec websearch-proxy /bin/sh
+	docker compose exec websearch-proxy /bin/sh
 
 ps: ## Show running containers
-	docker-compose ps
+	docker compose ps

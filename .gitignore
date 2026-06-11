@@ -211,3 +211,6 @@ __marimo__/
 bkp/
 *.bkp
 config.yaml.bkp
+
+# Omo tool directory
+.omo/
