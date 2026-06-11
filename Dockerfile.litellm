@@ -20,6 +20,7 @@ EXPOSE 4000
 # Set environment variables
 ENV LITELLM_MASTER_KEY=sk-123345sdf
 ENV LITELLM_SALT_KEY=sk-123345sdf
+ENV LITELLM_LOG=ERROR
 
 # Run litellm proxy
 CMD ["litellm", "--config", "/app/config.yaml", "--port", "4000", "--detailed_debug"]

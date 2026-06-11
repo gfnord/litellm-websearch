@@ -4,6 +4,9 @@ model_list:
       model: anthropic/glm-4.7
       api_key: os.environ/ZAI_API_KEY
       api_base: https://api.z.ai/api/anthropic
+    model_info:
+      # Z.AI concurrency limit: 2. Cap at 1 to leave headroom for Fair Use.
+      max_parallel_requests: 1
 
   - model_name: claude-opus-4-5-20251101
     litellm_params:
@@ -62,35 +65,38 @@ model_list:
       model: anthropic/glm-5.1
       api_key: os.environ/ZAI_API_KEY
       api_base: https://api.z.ai/api/anthropic
-      max_parallel_requests: 10  # Exact match to your dashboard
-      rpm: 120                   # Added as a safety buffer (10 concurrent * ~12 per min)
     model_info:
       input_cost_per_token: 0.00000098   # $0.98 per 1M tokens
       output_cost_per_token: 0.00000308  # $3.08 per 1M tokens
+      # Z.AI concurrency limit: 10. Cap at 6 for Fair Use headroom.
+      max_parallel_requests: 6
 
   - model_name: glm-4.7
     litellm_params:
       model: anthropic/glm-4.7
       api_key: os.environ/ZAI_API_KEY
       api_base: https://api.z.ai/api/anthropic
-      max_parallel_requests: 2   # Exact match to your dashboard
-      rpm: 30                    # Safety buffer
+    model_info:
+      # Z.AI concurrency limit: 2. Cap at 1.
+      max_parallel_requests: 1
 
   - model_name: glm-5-turbo
     litellm_params:
       model: anthropic/glm-5-turbo
       api_key: os.environ/ZAI_API_KEY
       api_base: https://api.z.ai/api/anthropic
-      max_parallel_requests: 1   # Exact match to your dashboard (Strict!)
-      rpm: 15                    # Safety buffer
+    model_info:
+      # Z.AI concurrency limit: 1. Match exactly.
+      max_parallel_requests: 1
 
   - model_name: glm-4.5-air
     litellm_params:
       model: anthropic/glm-4.5-air
       api_key: os.environ/ZAI_API_KEY
       api_base: https://api.z.ai/api/anthropic
-      max_parallel_requests: 5   # Exact match to your dashboard
-      rpm: 60                    # Safety buffer
+    model_info:
+      # Z.AI concurrency limit: 5. Cap at 3 for Fair Use headroom.
+      max_parallel_requests: 3
 
 litellm_settings:
   master_key: sk-123345sdf
@@ -110,3 +116,32 @@ litellm_settings:
 
 router_settings:
   routing_strategy: simple-shuffle
+  cooldown_time: 60           # reduced from 120 — less time benched per model
+  num_retries: 2
+  retry_after: 10
+  allowed_fails: 3            # increased from 1 — don't bench on a single transient error
+  fallbacks:
+    # ZAI models fall back through each other, then to local Ollama as last resort
+    - glm-5.1:
+        - glm-4.5-air
+        - glm-4.7
+        - qwen-3        # local Ollama safety net — always available
+    - glm-4.7:
+        - glm-4.5-air
+        - glm-5.1
+        - qwen-3
+    - glm-4.7-zai:
+        - glm-4.5-air
+        - glm-5.1
+        - qwen-3
+    - glm-4.5-air:
+        - glm-4.7
+        - glm-5.1
+        - qwen-3
+    - glm-5-turbo:
+        - glm-5.1
+        - glm-4.5-air
+        - qwen-3
+
+general_settings:
+  max_parallel_requests: 10   # global proxy-wide concurrency cap
