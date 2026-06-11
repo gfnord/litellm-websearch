@@ -1,12 +1,4 @@
 model_list:
-  - model_name: glm-4.7
-    litellm_params:
-      model: ollama_chat/glm-4.7-flash
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_web_search: true
-
   - model_name: glm-4.7-zai
     litellm_params:
       model: anthropic/glm-4.7
@@ -15,29 +7,15 @@ model_list:
 
   - model_name: claude-opus-4-5-20251101
     litellm_params:
-      model: ollama_chat/glm-4.7-flash
+      model: ollama_chat/qwen3:8b
       api_base: http://host.docker.internal:11434
       max_tokens: 32768
     model_info:
       supports_web_search: true
 
-  - model_name: bitnet-3b
-    litellm_params:
-      model: openai/bitnet-3b
-      api_base: http://localhost:8080/v1
-      api_key: none
-
-  - model_name: gemma4-e4b
-    litellm_params:
-      model: ollama_chat/gemma4:e4b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_vision: true
-
   - model_name: claude-haiku-4-5-20251001
     litellm_params:
-      model: ollama_chat/glm-4.7-flash
+      model: ollama_chat/qwen3:8b
       api_base: http://host.docker.internal:11434
       max_tokens: 32768
     model_info:
@@ -45,11 +23,31 @@ model_list:
 
   - model_name: claude-opus-4-6
     litellm_params:
-      model: ollama_chat/glm-4.7-flash
+      model: ollama_chat/qwen3:8b
       api_base: http://host.docker.internal:11434
       max_tokens: 32768
     model_info:
       supports_web_search: true
+
+  - model_name: qwen-3
+    litellm_params:
+      model: ollama_chat/qwen3:8b
+      api_base: http://host.docker.internal:11434
+      max_tokens: 32768
+    model_info:
+      supports_web_search: true
+
+  - model_name: dolphin3
+    litellm_params:
+      model: ollama_chat/dolphin3:8b
+      api_base: http://host.docker.internal:11434
+      max_tokens: 32768
+      extra_body:
+        think: false
+    model_info:
+      supports_web_search: true
+      supports_function_calling: false
+      supports_parallel_function_calling: false
 
   - model_name: qwen-3.5
     litellm_params:
@@ -59,41 +57,45 @@ model_list:
     model_info:
       supports_web_search: true
 
-  - model_name: qwen-3.6
+  - model_name: glm-5.1
     litellm_params:
-      model: ollama_chat/qwen3.6:35b-a3b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-      extra_body:
-        think: false
+      model: anthropic/glm-5.1
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/anthropic
+      max_parallel_requests: 10  # Exact match to your dashboard
+      rpm: 120                   # Added as a safety buffer (10 concurrent * ~12 per min)
     model_info:
-      supports_web_search: true
+      input_cost_per_token: 0.00000098   # $0.98 per 1M tokens
+      output_cost_per_token: 0.00000308  # $3.08 per 1M tokens
 
-  - model_name: gemma4-e4b
+  - model_name: glm-4.7
     litellm_params:
-      model: ollama_chat/gemma4:e4b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_vision: true
-      supports_web_search: true
+      model: anthropic/glm-4.7
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/anthropic
+      max_parallel_requests: 2   # Exact match to your dashboard
+      rpm: 30                    # Safety buffer
 
-  - model_name: dolphin3
+  - model_name: glm-5-turbo
     litellm_params:
-      model: ollama_chat/dolphin3:latest
-      api_base: http://host.docker.internal:11434
-      max_tokens: 8192
-    model_info:
-      supports_web_search: true
+      model: anthropic/glm-5-turbo
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/anthropic
+      max_parallel_requests: 1   # Exact match to your dashboard (Strict!)
+      rpm: 15                    # Safety buffer
 
-  - model_name: rocinante
+  - model_name: glm-4.5-air
     litellm_params:
-      model: ollama_chat/Rocinante-12B-v1.1-Q8_0:latest
-      api_base: http://host.docker.internal:11434
-      max_tokens: 16384
+      model: anthropic/glm-4.5-air
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/anthropic
+      max_parallel_requests: 5   # Exact match to your dashboard
+      rpm: 60                    # Safety buffer
 
 litellm_settings:
   master_key: sk-123345sdf
+  num_retries: 3
+  request_timeout: 60
   drop_params: true
   cache: true
   cache_params:
@@ -105,3 +107,6 @@ litellm_settings:
   callbacks: ["websearch_interception"]
   websearch_interception_params:
     enabled_providers: ["ollama_chat"]
+
+router_settings:
+  routing_strategy: simple-shuffle
