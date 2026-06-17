@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install litellm and all extras
-RUN pip install --no-cache-dir "litellm[proxy] == 1.88.1"
+RUN pip install --no-cache-dir "litellm[proxy] == 1.89.1"
 
 # Copy configuration
 COPY config.yaml /app/config.yaml
