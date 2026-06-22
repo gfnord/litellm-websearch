@@ -62,6 +62,7 @@ model_list:
       # Z.AI concurrency limit: 10. Cap at 6 for Fair Use headroom.
       max_parallel_requests: 4
       supports_web_search: false
+      disable_background_health_check: true
 
   - model_name: glm-5.2
     litellm_params:
@@ -75,6 +76,7 @@ model_list:
       max_parallel_requests: 4
       supports_web_search: false
       supports_reasoning: true
+      disable_background_health_check: true
 
   - model_name: glm-4.7
     litellm_params:
@@ -84,6 +86,7 @@ model_list:
     model_info:
       # Z.AI concurrency limit: 2. Cap at 1.
       max_parallel_requests: 1
+      disable_background_health_check: true
 
   - model_name: glm-5-turbo
     litellm_params:
@@ -93,6 +96,7 @@ model_list:
     model_info:
       # Z.AI concurrency limit: 1. Match exactly.
       max_parallel_requests: 1
+      disable_background_health_check: true
 
   - model_name: glm-4.5-air
     litellm_params:
@@ -102,6 +106,7 @@ model_list:
     model_info:
       # Z.AI concurrency limit: 5. Cap at 3 for Fair Use headroom.
       max_parallel_requests: 3
+      disable_background_health_check: true
 
 litellm_settings:
   master_key: sk-123345sdf
@@ -155,3 +160,4 @@ router_settings:
 general_settings:
   max_parallel_requests: 10   # global proxy-wide concurrency cap
   perform_model_check_on_startup: false
+  background_health_checks: false
