@@ -1,55 +1,55 @@
 model_list:
-  - model_name: claude-opus-4-5-20251101
-    litellm_params:
-      model: ollama_chat/qwen3:8b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_web_search: true
-
-  - model_name: claude-haiku-4-5-20251001
-    litellm_params:
-      model: ollama_chat/qwen3:8b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_web_search: true
-
-  - model_name: claude-opus-4-6
-    litellm_params:
-      model: ollama_chat/qwen3:8b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_web_search: true
-
-  - model_name: qwen-3
-    litellm_params:
-      model: ollama_chat/qwen3:8b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_web_search: true
-
-  - model_name: dolphin3
-    litellm_params:
-      model: ollama_chat/dolphin3:8b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-      extra_body:
-        think: false
-    model_info:
-      supports_web_search: true
-      supports_function_calling: false
-      supports_parallel_function_calling: false
-
-  - model_name: qwen-3.5
-    litellm_params:
-      model: ollama_chat/qwen3.5:9b
-      api_base: http://host.docker.internal:11434
-      max_tokens: 32768
-    model_info:
-      supports_web_search: true
+#  - model_name: claude-opus-4-5-20251101
+#    litellm_params:
+#      model: ollama_chat/qwen3:8b
+#      api_base: http://host.docker.internal:11434
+#      max_tokens: 32768
+#    model_info:
+#      supports_web_search: true
+#
+#  - model_name: claude-haiku-4-5-20251001
+#    litellm_params:
+#      model: ollama_chat/qwen3:8b
+#      api_base: http://host.docker.internal:11434
+#      max_tokens: 32768
+#    model_info:
+#      supports_web_search: true
+#
+#  - model_name: claude-opus-4-6
+#    litellm_params:
+#      model: ollama_chat/qwen3:8b
+#      api_base: http://host.docker.internal:11434
+#      max_tokens: 32768
+#    model_info:
+#      supports_web_search: true
+#
+#  - model_name: qwen-3
+#    litellm_params:
+#      model: ollama_chat/qwen3:8b
+#      api_base: http://host.docker.internal:11434
+#      max_tokens: 32768
+#    model_info:
+#      supports_web_search: true
+#
+#  - model_name: dolphin3
+#    litellm_params:
+#      model: ollama_chat/dolphin3:8b
+#      api_base: http://host.docker.internal:11434
+#      max_tokens: 32768
+#      extra_body:
+#        think: false
+#    model_info:
+#      supports_web_search: true
+#      supports_function_calling: false
+#      supports_parallel_function_calling: false
+#
+#  - model_name: qwen-3.5
+#    litellm_params:
+#      model: ollama_chat/qwen3.5:9b
+#      api_base: http://host.docker.internal:11434
+#      max_tokens: 32768
+#    model_info:
+#      supports_web_search: true
 
   - model_name: glm-5.1
     litellm_params:
@@ -60,7 +60,7 @@ model_list:
       input_cost_per_token: 0.00000098   # $0.98 per 1M tokens
       output_cost_per_token: 0.00000308  # $3.08 per 1M tokens
       # Z.AI concurrency limit: 10. Cap at 6 for Fair Use headroom.
-      max_parallel_requests: 4
+      max_parallel_requests: 6
       supports_web_search: false
       disable_background_health_check: true
 
@@ -73,7 +73,7 @@ model_list:
       max_tokens: 1000000
       input_cost_per_token: 0.00000098   # $0.98 per 1M tokens
       output_cost_per_token: 0.00000308  # $3.08 per 1M tokens
-      max_parallel_requests: 4
+      max_parallel_requests: 6
       supports_web_search: false
       supports_reasoning: true
       disable_background_health_check: true
@@ -139,23 +139,18 @@ router_settings:
         - glm-5.1
         - glm-4.7
         - glm-4.5-air
-        - qwen-3
     - glm-5.1:
         - glm-4.7
         - glm-4.5-air
-        - qwen-3        # local Ollama safety net — always available
     - glm-4.7:
         - glm-4.5-air
         - glm-5.1
-        - qwen-3
     - glm-4.5-air:
         - glm-4.7
         - glm-5.1
-        - qwen-3
     - glm-5-turbo:
         - glm-5.1
         - glm-4.5-air
-        - qwen-3
 
 general_settings:
   max_parallel_requests: 10   # global proxy-wide concurrency cap
