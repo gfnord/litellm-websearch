@@ -8,6 +8,7 @@ services:
       - "4000:4000"
     volumes:
       - ./config.yaml:/app/config.yaml:ro
+      - ./strip_non_text_content.py:/app/strip_non_text_content.py:ro
     environment:
       - LITELLM_MASTER_KEY=sk-123345sdf
       - LITELLM_SALT_KEY=sk-123345sdf
@@ -59,6 +60,25 @@ services:
       timeout: 3s
       retries: 5
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: litellm-caddy
+    restart: unless-stopped
+    ports:
+      - "4443:4443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - litellm-network
+    depends_on:
+      - litellm
+
 networks:
   litellm-network:
     driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

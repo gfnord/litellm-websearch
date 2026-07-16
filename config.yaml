@@ -1,56 +1,4 @@
 model_list:
-#  - model_name: claude-opus-4-5-20251101
-#    litellm_params:
-#      model: ollama_chat/qwen3:8b
-#      api_base: http://host.docker.internal:11434
-#      max_tokens: 32768
-#    model_info:
-#      supports_web_search: true
-#
-#  - model_name: claude-haiku-4-5-20251001
-#    litellm_params:
-#      model: ollama_chat/qwen3:8b
-#      api_base: http://host.docker.internal:11434
-#      max_tokens: 32768
-#    model_info:
-#      supports_web_search: true
-#
-#  - model_name: claude-opus-4-6
-#    litellm_params:
-#      model: ollama_chat/qwen3:8b
-#      api_base: http://host.docker.internal:11434
-#      max_tokens: 32768
-#    model_info:
-#      supports_web_search: true
-#
-#  - model_name: qwen-3
-#    litellm_params:
-#      model: ollama_chat/qwen3:8b
-#      api_base: http://host.docker.internal:11434
-#      max_tokens: 32768
-#    model_info:
-#      supports_web_search: true
-#
-#  - model_name: dolphin3
-#    litellm_params:
-#      model: ollama_chat/dolphin3:8b
-#      api_base: http://host.docker.internal:11434
-#      max_tokens: 32768
-#      extra_body:
-#        think: false
-#    model_info:
-#      supports_web_search: true
-#      supports_function_calling: false
-#      supports_parallel_function_calling: false
-#
-#  - model_name: qwen-3.5
-#    litellm_params:
-#      model: ollama_chat/qwen3.5:9b
-#      api_base: http://host.docker.internal:11434
-#      max_tokens: 32768
-#    model_info:
-#      supports_web_search: true
-
   - model_name: glm-5.1
     litellm_params:
       model: zai/glm-5.1
@@ -63,6 +11,11 @@ model_list:
       max_parallel_requests: 6
       supports_web_search: false
       disable_background_health_check: true
+      input_cost_per_token: 0.00000140  
+      output_cost_per_token: 0.00000440 
+      cache_read_input_token_cost: 0.000000026 # $0.26/1M
+      cache_creation_input_token_cost: 0.000000026 # $0.26/1M
+      supports_prompt_caching: true
 
   - model_name: glm-5.2
     litellm_params:
@@ -77,6 +30,11 @@ model_list:
       supports_web_search: false
       supports_reasoning: true
       disable_background_health_check: true
+      input_cost_per_token: 0.00000140  
+      output_cost_per_token: 0.00000440 
+      cache_read_input_token_cost: 0.000000026 # $0.26/1M
+      cache_creation_input_token_cost: 0.000000026 # $0.26/1M
+      supports_prompt_caching: true
 
   - model_name: glm-4.7
     litellm_params:
@@ -97,6 +55,11 @@ model_list:
       # Z.AI concurrency limit: 1. Match exactly.
       max_parallel_requests: 1
       disable_background_health_check: true
+      input_cost_per_token: 0.00000120  
+      output_cost_per_token: 0.00000400 
+      cache_read_input_token_cost: 0.000000026 # $0.26/1M
+      cache_creation_input_token_cost: 0.000000026 # $0.26/1M
+      supports_prompt_caching: true
 
   - model_name: glm-4.5-air
     litellm_params:
@@ -122,8 +85,9 @@ litellm_settings:
     host: redis
     port: 6379
     namespace: "litellm.caching.caching"
+    ttl: 300
   web_search_provider: serper
-  callbacks: ["websearch_interception"]
+  callbacks: ["websearch_interception", "strip_non_text_content.stripNonText"]
   websearch_interception_params:
     enabled_providers: ["ollama_chat"]
 

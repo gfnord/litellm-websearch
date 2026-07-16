@@ -1,0 +1,12 @@
+{
+	local_certs
+	admin off
+	servers {
+		protocols h1 h2
+	}
+}
+
+host.docker.internal:4443, localhost:4443 {
+	tls internal
+	reverse_proxy litellm:4000
+}
