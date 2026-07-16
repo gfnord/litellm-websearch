@@ -18,10 +18,38 @@ Registered in config.yaml:
 Mounted into the container via docker-compose.
 """
 
+import re
+
 from litellm.integrations.custom_logger import CustomLogger
 
 
 _ALLOWED_TYPES = {"text"}
+
+# Substring hints for models that natively accept image / rich content blocks.
+# Match is case-insensitive against data["model"]. Any hit → skip the strip.
+# Keep conservative — a false positive here means the upstream provider will
+# 400 on the untouched request.
+_VISION_MODEL_HINTS = (
+    "claude-",
+    "gpt-4o",
+    "gpt-4-vision",
+    "gpt-5",
+    "gemini",
+    "-vision",
+)
+
+# Z.AI's GLM vision family: glm-4v, glm-4v-plus, glm-4.5v, glm-4.6v, ...
+# Matches the "v" suffix on any glm-<major>[.<minor>] version.
+_GLM_VISION_RE = re.compile(r"glm-\d+(\.\d+)?v", re.IGNORECASE)
+
+
+def _is_vision_model(model):
+    if not isinstance(model, str):
+        return False
+    m = model.lower()
+    if _GLM_VISION_RE.search(m):
+        return True
+    return any(hint in m for hint in _VISION_MODEL_HINTS)
 
 
 def _flatten_block(block):
@@ -65,6 +93,8 @@ class StripNonTextContent(CustomLogger):
         call_type,
     ):
         if isinstance(data, dict) and "messages" in data:
+            if _is_vision_model(data.get("model")):
+                return data
             data["messages"] = _scrub_messages(data["messages"])
         return data
 

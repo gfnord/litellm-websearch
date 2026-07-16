@@ -24,8 +24,6 @@ model_list:
       api_base: https://api.z.ai/api/coding/paas/v4
     model_info:
       max_tokens: 1000000
-      input_cost_per_token: 0.00000098   # $0.98 per 1M tokens
-      output_cost_per_token: 0.00000308  # $3.08 per 1M tokens
       max_parallel_requests: 6
       supports_web_search: false
       supports_reasoning: true
@@ -45,6 +43,26 @@ model_list:
       # Z.AI concurrency limit: 2. Cap at 1.
       max_parallel_requests: 1
       disable_background_health_check: true
+      input_cost_per_token: 0.00000140  
+      output_cost_per_token: 0.00000440 
+      cache_read_input_token_cost: 0.000000026 # $0.26/1M
+      cache_creation_input_token_cost: 0.000000026 # $0.26/1M
+      supports_prompt_caching: true
+
+  - model_name: glm-4.5
+    litellm_params:
+      model: zai/glm-4.5
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      # Z.AI concurrency limit: 2. Cap at 1.
+      max_parallel_requests: 6
+      disable_background_health_check: true
+      input_cost_per_token: 0.00000140  
+      output_cost_per_token: 0.00000440 
+      cache_read_input_token_cost: 0.000000026 # $0.26/1M
+      cache_creation_input_token_cost: 0.000000026 # $0.26/1M
+      supports_prompt_caching: true
 
   - model_name: glm-5-turbo
     litellm_params:
@@ -55,8 +73,8 @@ model_list:
       # Z.AI concurrency limit: 1. Match exactly.
       max_parallel_requests: 1
       disable_background_health_check: true
-      input_cost_per_token: 0.00000120  
-      output_cost_per_token: 0.00000400 
+      input_cost_per_token: 0.00000140  
+      output_cost_per_token: 0.00000440 
       cache_read_input_token_cost: 0.000000026 # $0.26/1M
       cache_creation_input_token_cost: 0.000000026 # $0.26/1M
       supports_prompt_caching: true
@@ -70,6 +88,28 @@ model_list:
       # Z.AI concurrency limit: 5. Cap at 3 for Fair Use headroom.
       max_parallel_requests: 3
       disable_background_health_check: true
+
+  # Vision model. Uses Z.AI's regular OpenAI-shape endpoint (/paas/v4) — NOT
+  # the Anthropic passthrough at /coding/paas/v4, which strips non-text blocks.
+  # The strip_non_text_content callback recognizes GLM vision variants via
+  # regex and leaves image/tool_result blocks intact for this model.
+  - model_name: glm-4.6v
+    litellm_params:
+      model: zai/glm-4.6v
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/paas/v4
+      # glm-4.6v defaults thinking=enabled and puts the entire response into
+      # `reasoning_content` while leaving `content` empty. LiteLLM's
+      # Anthropic-shape response conversion drops reasoning_content, so the
+      # SDK sees an empty message and the poll-loop watchdog trips.
+      # Disabling thinking makes the model emit `content` directly.
+      extra_body:
+        thinking:
+          type: "disabled"
+    model_info:
+      max_parallel_requests: 3
+      disable_background_health_check: true
+      supports_vision: true
 
 litellm_settings:
   master_key: sk-123345sdf
