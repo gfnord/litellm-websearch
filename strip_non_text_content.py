@@ -1,15 +1,22 @@
 """
-LiteLLM pre-call hook that replaces non-text content blocks in messages with
-text placeholders. Runs before requests are forwarded upstream, so providers
-that only accept `type: "text"` in the content array (e.g. Zhipu's
-/api/coding/paas/v4 endpoint) don't 400 on images or other rich blocks.
+LiteLLM pre-call hook that scrubs upstream-incompatible content blocks from
+message history. Runs before requests are forwarded upstream.
 
-Handles both Anthropic-shape (`image`, `tool_result` with structured content,
-`document`, `container_upload`, ...) and OpenAI-shape (`image_url`,
-`input_audio`, ...) block types. Text blocks pass through untouched. Tool-call
-and tool-result envelopes on the message itself (role="tool",
-message["tool_calls"]) are left alone — only the inner `content` arrays are
-scrubbed.
+Motivation: Zhipu's /api/coding/paas/v4 (the Anthropic passthrough for GLM
+coding models) rejects `image` / `image_url` content blocks with
+`ZaiException - messages.content.type is invalid`. This callback replaces
+just those blocks with a text placeholder so the request goes through.
+
+DO NOT extend this to strip `tool_use`, `tool_result`, `thinking`, or
+`redacted_thinking`. Zhipu's Anthropic passthrough handles those natively
+(that's what enables Bash / MCP tool loops), and stripping them makes the
+model hallucinate around the missing turns — e.g. inventing a plausible
+`send_file` path because the real one from the prior `Bash` tool_result
+was replaced with `[tool_result omitted]`. Only strip block types the
+upstream provider actually errors on.
+
+The scrub is skipped entirely for vision-capable models (see
+_is_vision_model) — they need to see the image blocks.
 
 Registered in config.yaml:
     litellm_settings:
@@ -23,7 +30,14 @@ import re
 from litellm.integrations.custom_logger import CustomLogger
 
 
-_ALLOWED_TYPES = {"text"}
+# Deny-list: block types that Zhipu's /coding/paas/v4 endpoint rejects.
+# Add here (and nowhere else) if a new type causes ZaiException. Every
+# other content type — tool_use, tool_result, thinking, document,
+# container_upload, server_tool_use, ... — must pass through untouched.
+_STRIP_TYPES = {
+    "image",       # Anthropic-shape image block
+    "image_url",   # OpenAI-shape image block
+}
 
 # Substring hints for models that natively accept image / rich content blocks.
 # Match is case-insensitive against data["model"]. Any hit → skip the strip.
@@ -53,13 +67,13 @@ def _is_vision_model(model):
 
 
 def _flatten_block(block):
-    """Return a text placeholder for a single non-text content block."""
+    """Return a text placeholder for a single stripped content block."""
     btype = block.get("type", "unknown") if isinstance(block, dict) else "unknown"
     return {"type": "text", "text": f"[{btype} omitted]"}
 
 
 def _scrub_content(content):
-    """Walk a message content field; replace non-text blocks with placeholders."""
+    """Walk a message content field; replace deny-listed blocks with placeholders."""
     if not isinstance(content, list):
         return content
     scrubbed = []
@@ -68,10 +82,10 @@ def _scrub_content(content):
             scrubbed.append(block)
             continue
         btype = block.get("type")
-        if btype in _ALLOWED_TYPES:
-            scrubbed.append(block)
+        if btype in _STRIP_TYPES:
+            scrubbed.append(_flatten_block(block))
             continue
-        scrubbed.append(_flatten_block(block))
+        scrubbed.append(block)
     return scrubbed
 
 
