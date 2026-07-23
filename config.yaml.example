@@ -1,0 +1,183 @@
+# LiteLLM Proxy Configuration Template
+# ------------------------------------------------------------
+# Copy this file to `config.yaml` and edit for your environment:
+#   cp config.yaml.example config.yaml
+#
+# `config.yaml` is gitignored to keep local API keys / master keys /
+# provider tweaks out of the repo. Update this template whenever you add
+# a setting that other operators of this deployment will need.
+#
+# Required environment variables:
+#   - ZAI_API_KEY     Z.AI API key (https://z.ai/)
+#   - SERPER_API_KEY  Serper key for web search (https://serper.dev/)
+# ------------------------------------------------------------
+
+model_list:
+  # ---- Z.AI hosted GLM models ----------------------------------------
+  - model_name: glm-5.1
+    litellm_params:
+      model: zai/glm-5.1
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      # Z.AI concurrency limit: 10. Cap at 6 for Fair Use headroom.
+      max_parallel_requests: 6
+      supports_web_search: false
+      disable_background_health_check: true
+      input_cost_per_token: 0.00000140
+      output_cost_per_token: 0.00000440
+      cache_read_input_token_cost: 0.000000026      # $0.26/1M
+      cache_creation_input_token_cost: 0.000000026  # $0.26/1M
+      supports_prompt_caching: true
+
+  - model_name: glm-5.2
+    litellm_params:
+      model: zai/glm-5.2
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      max_tokens: 1000000
+      max_parallel_requests: 6
+      supports_web_search: false
+      supports_reasoning: true
+      disable_background_health_check: true
+      input_cost_per_token: 0.00000140
+      output_cost_per_token: 0.00000440
+      cache_read_input_token_cost: 0.000000026
+      cache_creation_input_token_cost: 0.000000026
+      supports_prompt_caching: true
+
+  - model_name: glm-4.7
+    litellm_params:
+      model: zai/glm-4.7
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      # Z.AI concurrency limit: 2. Cap at 1.
+      max_parallel_requests: 1
+      disable_background_health_check: true
+      input_cost_per_token: 0.00000140
+      output_cost_per_token: 0.00000440
+      cache_read_input_token_cost: 0.000000026
+      cache_creation_input_token_cost: 0.000000026
+      supports_prompt_caching: true
+
+  - model_name: glm-4.5
+    litellm_params:
+      model: zai/glm-4.5
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      max_parallel_requests: 6
+      disable_background_health_check: true
+      input_cost_per_token: 0.00000140
+      output_cost_per_token: 0.00000440
+      cache_read_input_token_cost: 0.000000026
+      cache_creation_input_token_cost: 0.000000026
+      supports_prompt_caching: true
+
+  - model_name: glm-5-turbo
+    litellm_params:
+      model: zai/glm-5-turbo
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      # Z.AI concurrency limit: 1. Match exactly.
+      max_parallel_requests: 1
+      disable_background_health_check: true
+      input_cost_per_token: 0.00000140
+      output_cost_per_token: 0.00000440
+      cache_read_input_token_cost: 0.000000026
+      cache_creation_input_token_cost: 0.000000026
+      supports_prompt_caching: true
+
+  - model_name: glm-4.5-air
+    litellm_params:
+      model: zai/glm-4.5-air
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/coding/paas/v4
+    model_info:
+      # Z.AI concurrency limit: 5. Cap at 3 for Fair Use headroom.
+      max_parallel_requests: 3
+      disable_background_health_check: true
+
+  # Vision model. Uses Z.AI's regular OpenAI-shape endpoint (/paas/v4) — NOT
+  # the Anthropic passthrough at /coding/paas/v4, which strips non-text blocks.
+  # The strip_non_text_content callback recognizes GLM vision variants via
+  # regex and leaves image/tool_result blocks intact for this model.
+  - model_name: glm-4.6v
+    litellm_params:
+      model: zai/glm-4.6v
+      api_key: os.environ/ZAI_API_KEY
+      api_base: https://api.z.ai/api/paas/v4
+      # glm-4.6v defaults thinking=enabled and puts the entire response into
+      # `reasoning_content` while leaving `content` empty. LiteLLM's
+      # Anthropic-shape response conversion drops reasoning_content, so the
+      # SDK sees an empty message and the poll-loop watchdog trips.
+      # Disabling thinking makes the model emit `content` directly.
+      extra_body:
+        thinking:
+          type: "disabled"
+    model_info:
+      max_parallel_requests: 3
+      disable_background_health_check: true
+      supports_vision: true
+
+  # ---- Local Ollama examples (uncomment / adapt as needed) -----------
+  # - model_name: qwen-3.5
+  #   litellm_params:
+  #     model: ollama_chat/qwen3.5:9b
+  #     api_base: http://host.docker.internal:11434
+  #     max_tokens: 32768
+  #   model_info:
+  #     supports_web_search: true
+
+litellm_settings:
+  # CHANGE THIS BEFORE DEPLOYING — used to authenticate clients to the proxy.
+  master_key: sk-CHANGE-ME
+  num_retries: 3
+  request_timeout: 300
+  retry_on_rate_limit: true
+  drop_params: true
+  json_logs: true
+  cache: true
+  cache_params:
+    type: redis
+    host: redis
+    port: 6379
+    namespace: "litellm.caching.caching"
+    ttl: 300
+  web_search_provider: serper
+  callbacks: ["websearch_interception", "strip_non_text_content.stripNonText"]
+  websearch_interception_params:
+    enabled_providers: ["ollama_chat"]
+
+router_settings:
+  routing_strategy: simple-shuffle
+  cooldown_time: 60           # reduced from 120 — less time benched per model
+  num_retries: 2
+  retry_after: 10
+  allowed_fails: 3            # increased from 1 — don't bench on a single transient error
+  fallbacks:
+    # ZAI models fall back through each other; add local Ollama as last resort if configured.
+    - glm-5.2:
+        - glm-5.1
+        - glm-4.7
+        - glm-4.5-air
+    - glm-5.1:
+        - glm-4.7
+        - glm-4.5-air
+    - glm-4.7:
+        - glm-4.5-air
+        - glm-5.1
+    - glm-4.5-air:
+        - glm-4.7
+        - glm-5.1
+    - glm-5-turbo:
+        - glm-5.1
+        - glm-4.5-air
+
+general_settings:
+  max_parallel_requests: 10   # global proxy-wide concurrency cap
+  perform_model_check_on_startup: false
+  background_health_checks: false

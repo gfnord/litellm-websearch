@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install litellm and all extras
-RUN pip install --no-cache-dir "litellm[proxy] == 1.91.1" prisma opentelemetry-api opentelemetry-sdk
+RUN pip install --no-cache-dir "litellm[proxy] == 1.93.0" prisma opentelemetry-api opentelemetry-sdk
 
 # Copy configuration
 COPY config.yaml /app/config.yaml
