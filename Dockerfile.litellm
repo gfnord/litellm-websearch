@@ -11,8 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install litellm and all extras
 RUN pip install --no-cache-dir "litellm[proxy] == 1.93.0" prisma opentelemetry-api opentelemetry-sdk
 
-# Copy configuration
-COPY config.yaml /app/config.yaml
+# Note: config.yaml is bind-mounted at runtime via docker-compose.yml.
+# The image ships without a baked-in config so fresh clones can build
+# before creating their local config.yaml from config.yaml.example.
 
 # Expose port
 EXPOSE 4000

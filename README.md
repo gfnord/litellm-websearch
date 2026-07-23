@@ -41,9 +41,16 @@ A Dockerized LiteLLM deployment with a custom web search proxy layer that provid
 cp .env.example .env
 ```
 
-2. Edit `.env` and set your `SERPER_API_KEY`
+2. Edit `.env` and set your `SERPER_API_KEY` (and `ZAI_API_KEY` if using Z.AI models)
 
-3. Configure models in `config.yaml` as needed
+3. Copy the example LiteLLM config:
+```bash
+cp config.yaml.example config.yaml
+```
+
+4. Edit `config.yaml` — at minimum, change `master_key` from `sk-CHANGE-ME` to your own secret. Add / remove models as needed.
+
+> `config.yaml` is gitignored so your local keys and provider tweaks stay out of version control. It is bind-mounted into the LiteLLM container at runtime, so edits take effect on `make restart` — no rebuild needed.
 
 ### Running
 
