@@ -63,6 +63,7 @@ Create a `.env` file in the project root by duplicating `.env.example`.
 |---|---|---|---|
 | `SERPER_API_KEY` | **Yes** (for search) | API key obtained from [serper.dev](https://serper.dev/) for Google Search. | `your_serper_key_here` |
 | `ZAI_API_KEY` | Optional | API key for Z.AI Hosted models (`glm-4.7`, `glm-5.1`, etc.). | `your_zai_key_here` |
-| `LITELLM_MASTER_KEY` | Optional | Master authorization token to talk to the LiteLLM container. | `sk-123345sdf` |
+| `LITELLM_MASTER_KEY` | **Yes** | Master authorization token to talk to the LiteLLM container. Single source of truth — set only in `.env`. | `sk-CHANGE-ME` |
+| `LITELLM_SALT_KEY` | **Yes** | Salt used by LiteLLM to encrypt stored credentials. Set only in `.env`. | `sk-CHANGE-ME` |
 | `LITELLM_URL` | Optional | Address used by the websearch proxy to communicate with LiteLLM. | `http://litellm:4000` |
 | `PORT` | Optional | Exposed port for the Web Search Proxy container. | `4001` |

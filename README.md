@@ -48,7 +48,9 @@ cp .env.example .env
 cp config.yaml.example config.yaml
 ```
 
-4. Edit `config.yaml` — at minimum, change `master_key` from `sk-CHANGE-ME` to your own secret. Add / remove models as needed.
+4. Edit `.env` — set `LITELLM_MASTER_KEY` and `LITELLM_SALT_KEY` to your own secrets (generate with `python3 -c "import secrets; print(f'sk-{secrets.token_hex(32)}')"`). `.env` is the single source of truth for the master key.
+
+5. Edit `config.yaml` — add / remove models as needed. Do **not** set `master_key` here; it comes from the env var.
 
 > `config.yaml` is gitignored so your local keys and provider tweaks stay out of version control. It is bind-mounted into the LiteLLM container at runtime, so edits take effect on `make restart` — no rebuild needed.
 
@@ -78,7 +80,7 @@ Send requests to the web search proxy (port 4001):
 ```bash
 curl -X POST http://localhost:4001/v1/messages \
   -H "Content-Type: application/json" \
-  -H "x-api-key: sk-123345sdf" \
+  -H "x-api-key: $LITELLM_MASTER_KEY" \
   -d '{
     "model": "glm-4.7",
     "max_tokens": 1024,
@@ -138,7 +140,8 @@ model_list:
 |----------|-------------|---------|
 | `SERPER_API_KEY` | Serper API key for web search | - |
 | `ZAI_API_KEY` | Z.AI API key for glm-4.7-zai model | - |
-| `LITELLM_MASTER_KEY` | LiteLLM master key | `sk-123345sdf` |
+| `LITELLM_MASTER_KEY` | LiteLLM master key (single source of truth — `.env` only) | `sk-CHANGE-ME` |
+| `LITELLM_SALT_KEY` | LiteLLM salt for credential encryption | `sk-CHANGE-ME` |
 | `LITELLM_URL` | LiteLLM service URL | `http://litellm:4000` |
 | `PORT` | Web search proxy port | `4001` |
 

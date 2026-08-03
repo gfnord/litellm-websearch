@@ -19,8 +19,7 @@ RUN pip install --no-cache-dir "litellm[proxy] == 1.93.0" prisma opentelemetry-a
 EXPOSE 4000
 
 # Set environment variables
-ENV LITELLM_MASTER_KEY=sk-123345sdf
-ENV LITELLM_SALT_KEY=sk-123345sdf
+# LITELLM_MASTER_KEY and LITELLM_SALT_KEY are injected at runtime from .env via docker-compose.
 ENV LITELLM_LOG=ERROR
 
 # Run litellm proxy

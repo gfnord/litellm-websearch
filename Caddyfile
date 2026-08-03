@@ -1,12 +1,13 @@
 {
 	local_certs
 	admin off
+	default_sni localhost
 	servers {
 		protocols h1 h2
 	}
 }
 
-host.docker.internal:4443, localhost:4443 {
+https://localhost:4443, https://host.docker.internal:4443, https://10.242.73.124:4443 {
 	tls internal
 	reverse_proxy litellm:4000
 }

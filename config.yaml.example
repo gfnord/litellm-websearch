@@ -133,8 +133,7 @@ model_list:
   #     supports_web_search: true
 
 litellm_settings:
-  # CHANGE THIS BEFORE DEPLOYING — used to authenticate clients to the proxy.
-  master_key: sk-CHANGE-ME
+  # master_key is sourced from LITELLM_MASTER_KEY in .env — do NOT set it here.
   num_retries: 3
   request_timeout: 300
   retry_on_rate_limit: true

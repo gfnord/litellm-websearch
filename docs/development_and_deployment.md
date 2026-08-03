@@ -90,7 +90,7 @@ To test if the proxy is correctly intercepting requests and running searches, se
 ```bash
 curl -X POST http://localhost:4001/v1/messages \
   -H "Content-Type: application/json" \
-  -H "x-api-key: sk-123345sdf" \
+  -H "x-api-key: $LITELLM_MASTER_KEY" \
   -d '{
     "model": "qwen-3.5",
     "max_tokens": 1024,

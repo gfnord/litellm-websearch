@@ -9,9 +9,11 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - ./strip_non_text_content.py:/app/strip_non_text_content.py:ro
+    env_file:
+      - .env
     environment:
-      - LITELLM_MASTER_KEY=sk-123345sdf
-      - LITELLM_SALT_KEY=sk-123345sdf
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - LITELLM_SALT_KEY=${LITELLM_SALT_KEY}
       - ZAI_API_KEY=${ZAI_API_KEY}
     command: ["litellm", "--config", "/app/config.yaml", "--port", "4000"]
     restart: unless-stopped
@@ -26,7 +28,7 @@ services:
       options:
         tag: "{{.Name}}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health", "-H", "Authorization: Bearer sk-123345sdf"]
+      test: ["CMD-SHELL", "curl -f http://localhost:4000/health -H \"Authorization: Bearer $$LITELLM_MASTER_KEY\""]
       interval: 60s
       timeout: 10s
       retries: 3
