@@ -8,8 +8,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install litellm and all extras
-RUN pip install --no-cache-dir "litellm[proxy] == 1.93.0" prisma opentelemetry-api opentelemetry-sdk
+# Install litellm and all extras.
+# fastapi is pinned <0.140.7: that release dropped
+# `fastapi.dependencies.utils.get_flat_dependant`, which litellm 1.97.0 imports in
+# proxy/management_endpoints/management_v1/common.py. litellm's own range
+# (fastapi>=0.136.3,<1.0) still resolves to 0.141.x, so the proxy crashes on import.
+# Upstream removed that import in litellm 1.98.0rc1 - drop this pin when 1.98.0 lands.
+RUN pip install --no-cache-dir "litellm[proxy] == 1.97.0" "fastapi >= 0.136.3, < 0.140.7" prisma opentelemetry-api opentelemetry-sdk
 
 # Note: config.yaml is bind-mounted at runtime via docker-compose.yml.
 # The image ships without a baked-in config so fresh clones can build
