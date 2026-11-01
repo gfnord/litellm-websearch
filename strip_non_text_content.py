@@ -15,6 +15,11 @@ model hallucinate around the missing turns — e.g. inventing a plausible
 was replaced with `[tool_result omitted]`. Only strip block types the
 upstream provider actually errors on.
 
+Images nested inside a `tool_result` (e.g. Claude Code's Read tool on a
+.jpg) are scrubbed too, but the `tool_result` block itself is kept. Z.AI
+does not reject those; it inlines the base64 as text instead — one 36 KB
+frame cost ~34k input tokens and the model hallucinated its content.
+
 The scrub is skipped entirely for vision-capable models (see
 _is_vision_model) — they need to see the image blocks.
 
@@ -50,6 +55,7 @@ _VISION_MODEL_HINTS = (
     "gpt-5",
     "gemini",
     "-vision",
+    "kimi-k3",   # Moonshot Kimi K3 family (kimi-k3, kimi-k3.1-pro, ...)
 )
 
 # Z.AI's GLM vision family: glm-4v, glm-4v-plus, glm-4.5v, glm-4.6v, ...
@@ -69,7 +75,10 @@ def _is_vision_model(model):
 def _flatten_block(block):
     """Return a text placeholder for a single stripped content block."""
     btype = block.get("type", "unknown") if isinstance(block, dict) else "unknown"
-    return {"type": "text", "text": f"[{btype} omitted]"}
+    return {
+        "type": "text",
+        "text": f"[{btype} omitted: this model cannot see images; use the describe_image tool on the file if you have it]",
+    }
 
 
 def _scrub_content(content):
@@ -84,6 +93,9 @@ def _scrub_content(content):
         btype = block.get("type")
         if btype in _STRIP_TYPES:
             scrubbed.append(_flatten_block(block))
+            continue
+        if btype == "tool_result" and isinstance(block.get("content"), list):
+            scrubbed.append({**block, "content": _scrub_content(block["content"])})
             continue
         scrubbed.append(block)
     return scrubbed

@@ -148,6 +148,26 @@ model_list:
       disable_background_health_check: true
       supports_vision: true
 
+  # Kimi K3 (Moonshot). Vision-capable; NanoClaw's VISION_MODEL for
+  # vision-describe.ts (inbound attachments + the describe_image tool).
+  # OpenAI-compatible route on purpose: K3 always reasons (default effort max,
+  # 2.4k-4k+ thinking tokens per describe), and LiteLLM 1.93's /v1/messages
+  # path silently drops output_config.effort for non-Claude models (verified by
+  # capturing the upstream body). On this route extra_body.reasoning_effort
+  # does reach Moonshot. LiteLLM converts the Anthropic image blocks to
+  # image_url data URLs, which Kimi accepts.
+  - model_name: kimi-k3
+    litellm_params:
+      model: moonshot/kimi-k3
+      api_key: os.environ/MOONSHOT_API_KEY
+      api_base: https://api.moonshot.ai/v1
+      extra_body:
+        reasoning_effort: low
+    model_info:
+      max_parallel_requests: 3
+      disable_background_health_check: true
+      supports_vision: true
+
   # ---- Local Ollama examples (uncomment / adapt as needed) -----------
   # - model_name: qwen-3.5
   #   litellm_params:
