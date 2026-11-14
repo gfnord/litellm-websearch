@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install litellm, pinned to an exact release. Never float this: litellm 1.107.0
-# (PyPI, 2026-10-21) was a supply-chain compromise; 1.106.2 is the last clean release.
-RUN pip install --no-cache-dir "litellm[proxy] == 1.106.2" prisma opentelemetry-api opentelemetry-sdk
+# (PyPI, 2026-10-21) was a supply-chain compromise. 1.109.1 (2026-11-12) is a
+# post-incident release and includes the GHSA-2rwg-2wh4-7c4f fix.
+RUN pip install --no-cache-dir "litellm[proxy] == 1.109.1" prisma opentelemetry-api opentelemetry-sdk
 
 # Note: config.yaml is bind-mounted at runtime via docker-compose.yml.
 # The image ships without a baked-in config so fresh clones can build
