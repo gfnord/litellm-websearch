@@ -72,7 +72,7 @@ The project uses a virtual environment at `litellm-env/` with Python 3.12. Alway
 - Official `ghcr.io/berriai/litellm:latest` only provides arm64 images
 - We're on amd64 (x86_64), so we build custom images from source
 - `Dockerfile.litellm` installs `litellm[proxy]` from PyPI, pinned to an exact version (never float it: 1.107.0 was a supply-chain compromise)
-- Current LiteLLM version: **1.109.1**
+- Current LiteLLM version: **1.108.11**
 
 ## Architecture
 
