@@ -9,5 +9,9 @@
 
 https://localhost:4443, https://host.docker.internal:4443, https://10.242.73.124:4443 {
 	tls internal
+	log {
+        	output stdout
+        	format json
+    	}
 	reverse_proxy litellm:4000
 }
